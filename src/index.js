@@ -194,6 +194,7 @@ const getDimensions = (imageBuffer, percentageOfImage, dimensions) => {
 const sharpResize = (imageBuffer, dimensions, jpegOptions, fit, failOnError, withMetadata, flattenBackgroundColor) => {
   return new Promise((resolve, reject) => {
     let result = sharp(imageBuffer, { failOnError })
+      .rotate(0)
       .resize({
         ...dimensions,
         withoutEnlargement: true,
