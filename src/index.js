@@ -194,17 +194,18 @@ const getDimensions = (imageBuffer, percentageOfImage, dimensions) => {
 const sharpResize = (imageBuffer, dimensions, jpegOptions, fit, failOnError, withMetadata, flattenBackgroundColor) => {
   return new Promise((resolve, reject) => {
     let result = sharp(imageBuffer, { failOnError })
-      .rotate(0)
+      .rotate() // Automatically rotate based on EXIF, then strip metadata
       .resize({
         ...dimensions,
         withoutEnlargement: true,
-        fit: fit ? fit : 'contain',
+        fit: fit || 'inside',
       })
-      .flatten({ background: flattenBackgroundColor });
-
-    if (withMetadata) {
-      result.withMetadata();
-    }
+      .flatten({ background: flattenBackgroundColor })
+      .jpeg(jpegOptions || { force: false })
+      .toBuffer((err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
 
     result.jpeg(jpegOptions ? jpegOptions : { force: false }).toBuffer((err, data) => {
       if (err) {
